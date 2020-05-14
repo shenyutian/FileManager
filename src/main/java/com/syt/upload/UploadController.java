@@ -2,6 +2,7 @@ package com.syt.upload;
 
 import cn.hutool.core.util.RandomUtil;
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.io.FileExistsException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -13,9 +14,6 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.regex.Pattern;
-
-import static com.syt.upload.MD5utils.*;
 
 /**
  * @author YuTian
@@ -44,13 +42,15 @@ public class UploadController {
         jsonObject.put("code", 0);
         Map src = new HashMap();
         try {
-            // 对文件名的  空格 进行处理
-            String fileNameStr = file.getOriginalFilename().replaceAll(" ", "");
-            String mailRegex = "[\u4e00-\u9fa5]+";
-            Pattern.compile(mailRegex).matcher(fileNameStr);
+            String fileName;
+            if (file.getOriginalFilename() != null) {
+                fileName = updateFileName(file.getOriginalFilename());
+            } else {
+                throw new FileExistsException("文件名为空");
+            }
 
             // 设备本地文件名
-            String filepath = path + "/" + RandomUtil.randomString(10) + "." + file.getContentType();
+            String filepath = path + "/" + fileName;
             jsonObject.put("filepath", filepath);
             File destFile = new File(filepath);
             if(!destFile.getParentFile().exists()){
@@ -58,7 +58,7 @@ public class UploadController {
             }
             // 传递保存文件
             file.transferTo(destFile);
-            src.put("src", "http://" + ip + ":" + port + "/" + destFile.getName());
+            src.put("src", "http://" + ip + ":" + port + "/" + fileName);
         } catch (Exception e) {
             e.printStackTrace();
             jsonObject.put("msg", "上传失败," + e.getMessage());
@@ -81,14 +81,21 @@ public class UploadController {
 
         for (MultipartFile file :
                 files) {
-            // 设备本地文件名
-            File destFile = new File(path + RandomUtil.randomString(10) + "." + file.getContentType());
-            if(!destFile.getParentFile().exists()){
-                destFile.mkdirs();
-            }
             try {
+                String fileName;
+                if (file.getOriginalFilename() != null) {
+                    fileName = updateFileName(file.getOriginalFilename());
+                } else {
+                    throw new FileExistsException("文件名为空");
+                }
+
+                // 设备本地文件名
+                File destFile = new File(path + "/" + fileName);
+                if(!destFile.getParentFile().exists()){
+                    destFile.mkdirs();
+                }
                 file.transferTo(destFile);
-                src.add("http://" + ip + ":" + port + "/" + file.getOriginalFilename());
+                src.add("http://" + ip + ":" + port + "/" + fileName);
             } catch (IOException e) {
                 e.printStackTrace();
                 error.add(file.getOriginalFilename());
@@ -99,4 +106,16 @@ public class UploadController {
         return jsonObject;
     }
 
+    private static String updateFileName(String oldName) {
+        // 取出文件格式名
+        String format = ".";
+        if (oldName.contains(format)) {
+            String[] split = oldName.split("\\.");
+            format += split[split.length - 1];
+        } else {
+            format = "";
+        }
+        // 随机文件名
+        return RandomUtil.randomString(6) + System.currentTimeMillis() + format;
+    }
 }

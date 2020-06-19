@@ -68,7 +68,11 @@ public class UploadController {
     }
 
 
-
+    /**
+     * 多个文件上传接口
+     * @param requestBody 请求头
+     * @return 结果集
+     */
     @PostMapping("api/uploadFiles")
     public Object uploadFiles(HttpServletRequest requestBody) {
         JSONObject jsonObject = new JSONObject();
@@ -106,6 +110,11 @@ public class UploadController {
         return jsonObject;
     }
 
+    /**
+     * 更新文件名称，防止中文乱码
+     * @param oldName 原有文件名
+     * @return  新的name
+     */
     private static String updateFileName(String oldName) {
         // 取出文件格式名
         String format = ".";

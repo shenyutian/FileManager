@@ -64,7 +64,7 @@ public class UploadController {
             srcUrl.append("http://").append(ip).append(":").append(port).append("/").append(fileName);
             src.put("src", srcUrl.toString());
             // 增加二维码的图标
-            QrCodeUtil.generate("qrcode", 300, 300, FileUtil.file(filepath + ".jpg"));
+            QrCodeUtil.generate(srcUrl.toString(), 300, 300, FileUtil.file(filepath + ".jpg"));
             src.put("qrcode", srcUrl.toString() + ".jpg");
         } catch (Exception e) {
             e.printStackTrace();
@@ -110,7 +110,7 @@ public class UploadController {
                 srcUrl.append("http://").append(ip).append(":").append(port).append("/").append(fileName);
                 src.add(srcUrl.toString());
                 // 增加二维码的图标
-                QrCodeUtil.generate("qrcode", 300, 300, FileUtil.file(destFile.getAbsolutePath() + "qrcode.jpg"));
+                QrCodeUtil.generate(srcUrl.toString(), 300, 300, FileUtil.file(destFile.getAbsolutePath() + "qrcode.jpg"));
                 src.add(srcUrl.toString() + "qrcode.jpg");
             } catch (IOException e) {
                 e.printStackTrace();

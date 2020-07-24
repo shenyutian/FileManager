@@ -144,11 +144,13 @@ public class UploadController {
      * @param body
      * @return
      */
-    @PostMapping("ToORCode")
-    public String StringToORCode(String body) {
+    @PostMapping("toORCode")
+    public Object StringToORCode(@RequestBody String body) {
         QrCodeUtil.generate(body, 300, 300, FileUtil.file(path + "/qrcode.jpg"));
         StringBuilder srcUrl = new StringBuilder();
+        JSONObject jsonObject = new JSONObject();
         srcUrl.append("http://").append(ip).append(":").append(port).append("/").append("qrcode.jpg");
-        return srcUrl.toString();
+        jsonObject.put("decodeurl", srcUrl.toString());
+        return jsonObject;
     }
 }

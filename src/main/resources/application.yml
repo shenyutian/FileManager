@@ -13,7 +13,7 @@ spring:
 
 # 自定义上传文件配置 服务器上需要修改 第一个win  第二个 linux  第三个 mac
 syt:
-  #  upload: F:\upload\
+#  upload: F:\upload\git pu
   upload: /root/upload
 #  upload: /Users/space/Downloads/qq_file
 

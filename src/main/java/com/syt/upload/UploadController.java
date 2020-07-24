@@ -6,9 +6,7 @@ import cn.hutool.extra.qrcode.QrCodeUtil;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.io.FileExistsException;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
@@ -22,6 +20,7 @@ import java.util.*;
  * @date 2020/5/12 7:03 下午
  */
 @RestController
+@RequestMapping("api")
 public class UploadController {
 
     @Value("${server.port}")
@@ -38,7 +37,7 @@ public class UploadController {
      * @param file
      * @return 上传结果，已经新文件路径
      */
-    @PostMapping("api/upload")
+    @PostMapping("upload")
     public Object upload(MultipartFile file) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("code", 0);
@@ -80,7 +79,7 @@ public class UploadController {
      * @param requestBody 请求头
      * @return 结果集
      */
-    @PostMapping("api/uploadFiles")
+    @PostMapping("uploadFiles")
     public Object uploadFiles(HttpServletRequest requestBody) {
         JSONObject jsonObject = new JSONObject();
 
@@ -138,5 +137,18 @@ public class UploadController {
         }
         // 随机文件名
         return RandomUtil.randomString(6) + System.currentTimeMillis() + format;
+    }
+
+    /**
+     * 进行 String -> 二维码地址
+     * @param body
+     * @return
+     */
+    @PostMapping("ToORCode")
+    public String StringToORCode(String body) {
+        QrCodeUtil.generate(body, 300, 300, FileUtil.file(path + "qrcode.jpg"));
+        StringBuilder srcUrl = new StringBuilder();
+        srcUrl.append("http://").append(ip).append(":").append(port).append("/").append("qrcode.jpg");
+        return srcUrl.toString();
     }
 }
